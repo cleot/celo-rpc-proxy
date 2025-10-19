@@ -3,14 +3,14 @@ name: Build and Push Proxyd Docker Image
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'external/ethereum-optimism-infra/**'
       - '.github/workflows/build-proxyd.yml'
       - 'Dockerfile.proxyd'
   pull_request:
     branches:
-      - main
+      - master
     paths:
       - 'external/ethereum-optimism-infra/**'
       - '.github/workflows/build-proxyd.yml'
