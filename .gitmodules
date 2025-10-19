@@ -1,0 +1,3 @@
+[submodule "external/ethereum-optimism-infra"]
+	path = external/ethereum-optimism-infra
+	url = https://github.com/ethereum-optimism/infra.git
