@@ -1,0 +1,94 @@
+# List of WS methods to whitelist.
+ws_method_whitelist = [
+  "eth_subscribe",
+  "eth_call",
+  "eth_chainId",
+  "eth_getCode"
+]
+# Enable WS on this backend group. There can only be one WS-enabled backend group.
+ws_backend_group = "main"
+
+[server]
+# Host for the proxyd RPC server to listen on.
+rpc_host = "0.0.0.0"
+# Port for the above.
+rpc_port = 8080
+# Host for the proxyd WS server to listen on.
+#ws_host = "0.0.0.0"
+# Port for the above
+# Set the ws_port to 0 to disable WS
+#ws_port = 8085
+# Maximum client body size, in bytes, that the server will accept.
+max_body_size_bytes = 10485760
+max_concurrent_rpcs = 1000
+# Server log level
+log_level = "info"
+
+[redis]
+# URL to a Redis instance.
+#url = "redis://127.0.0.1:6379"
+# redis using same docker network
+url = "redis://redis:6379"
+
+[metrics]
+# Whether or not to enable Prometheus metrics.
+enabled = true
+# Host for the Prometheus metrics endpoint to listen on.
+host = "0.0.0.0"
+# Port for the above.
+port = 9761
+
+[backend]
+# How long proxyd should wait for a backend response before timing out.
+response_timeout_seconds = 5
+# Maximum response size, in bytes, that proxyd will accept from a backend.
+max_response_size_bytes = 5242880
+# Maximum number of times proxyd will try a backend before giving up.
+max_retries = 3
+# Number of seconds to wait before trying an unhealthy backend again.
+out_of_service_seconds = 600
+# Maximum latency accepted to serve requests, default 10s
+max_latency_threshold = "30s"
+# Maximum latency accepted to serve requests before degraded, default 5s
+max_degraded_latency_threshold = "10s"
+# Maximum error rate accepted to serve requests, default 0.5 (i.e. 50%)
+max_error_rate_threshold = 0.3
+
+[backends]
+# first backend is used as primary
+
+[backends.host1]
+# RPC URL for the first backend.
+rpc_url = "http://host1:9993"
+max_rps = 3
+consensus_receipts_target = "eth_getBlockReceipts"
+
+[backends.host2]
+# RPC URL for the second backend.
+rpc_url = "http://host2:9993"
+max_rps = 3
+consensus_receipts_target = "eth_getBlockReceipts"
+
+[backends.host3]
+# RPC URL for the third backend.
+rpc_url = "http://host3:9993"
+max_rps = 3
+max_ws_conns = 1
+consensus_receipts_target = "eth_getBlockReceipts"
+
+
+[backend_groups]
+[backend_groups.main]
+backends = ["host1", "host2", "host3"]
+routing_strategy = "consensus_aware"
+consensus_ban_period = "1m"
+consensus_max_update_threshold = "2m"
+consensus_max_block_lag = 50
+consensus_min_peer_count = 4
+
+# Mapping of methods to backend groups.
+[rpc_method_mappings]
+eth_call = "main"
+eth_chainId = "main"
+eth_blockNumber = "main"
+eth_getCode = "main"

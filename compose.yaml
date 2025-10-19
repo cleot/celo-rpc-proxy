@@ -1,0 +1,34 @@
+services:
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - proxyd-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping", "-c", "1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  proxyd:
+    image: ghcr.io/cleot/celo-rpc-proxy/proxyd:latest
+    container_name: proxyd
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - "./config.toml:/etc/proxyd/proxyd.toml"
+    networks:
+      - proxyd-network
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # RPC port
+      - "8085:8085"  # WebSocket port
+      - "9761:9761"  # Prometheus metrics port
+
+networks:
+  proxyd-network:
+    driver: bridge
